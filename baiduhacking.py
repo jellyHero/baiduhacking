@@ -4,30 +4,38 @@
 # time:2018-07-26
 import asyncio
 from pyppeteer import launch
+import demjson
 
 #输入目标，如：qq.com
 target_site = input('target site : ')
-
-#百度高级搜索，格式如：
-#{'stie':target_site,'filetype':'','inurl':'','intitle':'','keyword':''}
-payload = [{'stie':target_site,'filetype':'','inurl':'wp-admin','intitle':'','keyword':''},{'stie':target_site,'filetype':'','inurl':'','intitle':'HTTP Server Test Page','keyword':''},{'stie':target_site,'filetype':'','inurl':'config','intitle':'','keyword':''},{'stie':target_site,'filetype':'','inurl':'password=','intitle':'','keyword':''},{'stie':target_site,'filetype':'txt','inurl':'','intitle':'','keyword':''},{'stie':target_site,'filetype':'','inurl':'menu.jsp','intitle':'','keyword':''},{'stie':target_site,'filetype':'','inurl':'','intitle':'','keyword':'Apache Tomcat'},{'stie':target_site,'filetype':'','inurl':'','intitle':'Index of','keyword':''},{'stie':target_site,'filetype':'','inurl':'web-console','intitle':'','keyword':''},{'stie':target_site,'filetype':'','inurl':'','intitle':'','keyword':'Powered by'},{'stie':target_site,'filetype':'','inurl':'','intitle':'Struts Problem Report','keyword':''},{'stie':target_site,'filetype':'','inurl':'','intitle':'','keyword':'MySQL Error:'},{'stie':target_site,'filetype':'','inurl':'','intitle':'Content Server Error','keyword':''},{'stie':target_site,'filetype':'','inurl':'','intitle':'','keyword':'Unexpected Problem Occurred!'},{'stie':target_site,'filetype':'','inurl':'','intitle':'','keyword':'sql syntax'},{'stie':target_site,'filetype':'','inurl':'url=','intitle':'','keyword':''},{'stie':target_site,'filetype':'','inurl':'login','intitle':'','keyword':''},{'stie':target_site,'filetype':'','inurl':'admin','intitle':'','keyword':''},{'stie':target_site,'filetype':'','inurl':'home','intitle':'','keyword':''}]
-
+fileName = './payload.txt'
 #存放百度高级搜索结果页面的url
 result = []
 
-#拼接百搭搜索url
-def getSearchUrl(input_data):
+
+
+#百度高级搜索，格式如：
+#{'filetype':'','inurl':'','intitle':'','keyword':''}
+def getPayloads(fileName):
+	payloads = []
+	with open(fileName, 'r') as f:
+		for line in f.readlines():
+			payloads.append(demjson.decode(line.strip()))
+	return payloads
+
+
+#拼接百度搜索url
+def getSearchUrl(target_site,input_data):
 	wd_data = 'wd='
-	if input_data['stie']:
-		wd_data = wd_data + 'site%3A('+input_data['stie']+')%20'
-	if input_data['filetype']:
-		wd_data = wd_data + 'filetype%3A'+input_data['filetype']+'%20'
-	if input_data['inurl']:
-		wd_data = wd_data + 'inurl%3A' + input_data['inurl'] + '%20'
-	if input_data['intitle']:
-		wd_data = wd_data + 'intitle%3A' + input_data['intitle'] + '%20'
-	if input_data['keyword']:
-		wd_data = wd_data + input_data['keyword']
+	wd_data = wd_data + 'site%3A('+target_site+')'
+	if 'filetype' in input_data.keys():
+		wd_data = wd_data + '%20filetype%3A'+input_data['filetype']
+	if 'inurl' in input_data.keys():
+		wd_data = wd_data + '%20inurl%3A' + input_data['inurl']
+	if 'intitle' in input_data.keys():
+		wd_data = wd_data + '%20intitle%3A' + input_data['intitle']
+	if 'keyword' in input_data.keys():
+		wd_data = wd_data +'%20'+input_data['keyword']
 	url = 'https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=1&tn=baiduadv&'+wd_data
 	return url
 
@@ -77,12 +85,12 @@ def isFindNothing(content):
 		return False
 
 #百度hack主函数，调用headless浏览器访问，并将包含结果的搜索url保存到result
-async def baiduHacking():
+async def baiduHacking(target_site,payloads):
 	browser = await launch(headless=False, args=['--disable-xss-auditor'])
-	for input_data in payload:
+	for input_data in payloads:
 		close_flag = True
 		page = await browser.newPage()
-		url = getSearchUrl(input_data)
+		url = getSearchUrl(target_site,input_data)
 		await page.goto(url)
 		content = await page.content()
 		if isNotOnlyBaiDuFanYi(content):
@@ -106,8 +114,9 @@ def done_callback(futu):
 
 #循环主函数
 def main():
+	payloads = getPayloads(fileName)
 	loop = asyncio.get_event_loop()
-	futu = asyncio.ensure_future(baiduHacking())
+	futu = asyncio.ensure_future(baiduHacking(target_site,payloads))
 	futu.add_done_callback(done_callback)
 	#loop.run_until_complete(futu)
 	loop.run_forever()

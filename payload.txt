@@ -1,0 +1,28 @@
+{'inurl':'wp-admin'}
+{'inurl':'config'}
+{'inurl':'password='}
+{'inurl':'menu.jsp'}
+{'inurl':'web-console'}
+{'inurl':'url='}
+{'inurl':'login'}
+{'inurl':'admin'}
+{'inurl':'home'}
+{'inurl':'tunnel.'}
+{'intitle':'Content Server Error'}
+{'intitle':'Struts Problem Report'}
+{'intitle':'HTTP Server Test Page'}
+{'intitle':'Index of'}
+{'intitle':'☆銥繎夶蟲___Ёnd'}
+{'intitle':'FSO文件浏览器'}
+{'intitle':'r00ts小组'}
+{'intitle':'孤水绕城'}
+{'intitle':'FC※HK'}
+{'intitle':'jshell'}
+{'keyword':'MySQL Error:'}
+{'keyword':'Unexpected Problem Occurred!'}
+{'keyword':'sql syntax'}
+{'keyword':'Apache Tomcat'}
+{'keyword':'Powered by'}
+{'keyword':'Hacked by'}
+{'keyword':'by 慈勤强'}
+{'filetype':'txt'}
